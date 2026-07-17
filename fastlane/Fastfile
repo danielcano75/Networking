@@ -117,6 +117,17 @@ platform :ios do
     sh "cd #{root} && git diff --cached --quiet || git commit -m 'chore: generate podspec #{version} [skip ci]'"
     sh "cd #{root} && git push origin master"
 
+    # ── 8. Publish podspec to Specs repo ─────────────────────────────────────
+    UI.message "Publishing podspec to Specs repo..."
+    token = ENV["GITHUB_API_TOKEN"]
+    specs_url = "https://x-access-token:#{token}@github.com/danielcano75/Specs.git"
+    sh "pod repo add danielcano75-specs #{specs_url} 2>/dev/null || pod repo update danielcano75-specs"
+    pod_push(
+      path: podspec_path,
+      repo: "danielcano75-specs",
+      allow_warnings: true
+    )
+
     UI.success "Released Networking v#{version} successfully!"
   end
 
