@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
+opt_out_usage
+
 default_platform(:ios)
 
 platform :ios do
+
+  # ── Tests ────────────────────────────────────────────────────────────────────
+
   desc "Run all unit tests"
   lane :test do
     run_tests(
@@ -17,4 +22,99 @@ platform :ios do
       xcodebuild_formatter: ""
     )
   end
+
+  # ── Release ───────────────────────────────────────────────────────────────────
+
+  desc "Build XCFramework, publish GitHub Release and update podspec"
+  lane :release do
+    version = ENV.fetch("VERSION") do
+      UI.user_error!("Set VERSION before running: VERSION=1.0.0 bundle exec fastlane release")
+    end
+
+    build_dir          = "build"
+    device_archive     = "#{build_dir}/Networking-iOS.xcarchive"
+    simulator_archive  = "#{build_dir}/Networking-Simulator.xcarchive"
+    xcframework_path   = "#{build_dir}/Networking.xcframework"
+    zip_name           = "Networking.xcframework.zip"
+    zip_path           = "#{build_dir}/#{zip_name}"
+
+    # ── 1. Clean ────────────────────────────────────────────────────────────────
+    UI.message "Cleaning build directory..."
+    FileUtils.rm_rf(build_dir)
+    FileUtils.mkdir_p(build_dir)
+
+    # ── 2. Archive Device (arm64) ────────────────────────────────────────────
+    UI.message "Archiving for iOS device..."
+    sh "xcodebuild archive \
+      -project Networking.xcodeproj \
+      -scheme Networking \
+      -destination 'generic/platform=iOS' \
+      -archivePath #{device_archive} \
+      SKIP_INSTALL=NO \
+      BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+      | xcbeautify"
+
+    # ── 3. Archive Simulator (arm64 + x86_64) ───────────────────────────────
+    UI.message "Archiving for iOS Simulator..."
+    sh "xcodebuild archive \
+      -project Networking.xcodeproj \
+      -scheme Networking \
+      -destination 'generic/platform=iOS Simulator' \
+      -archivePath #{simulator_archive} \
+      SKIP_INSTALL=NO \
+      BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+      | xcbeautify"
+
+    # ── 4. Create XCFramework ────────────────────────────────────────────────
+    UI.message "Creating XCFramework..."
+    sh "xcodebuild -create-xcframework \
+      -framework #{device_archive}/Products/Library/Frameworks/Networking.framework \
+      -framework #{simulator_archive}/Products/Library/Frameworks/Networking.framework \
+      -output #{xcframework_path}"
+
+    # ── 5. Compress ──────────────────────────────────────────────────────────
+    UI.message "Compressing XCFramework..."
+    sh "cd #{build_dir} && zip -r #{zip_name} Networking.xcframework"
+
+    # ── 6. Create GitHub Release and upload asset ────────────────────────────
+    UI.message "Creating GitHub Release v#{version}..."
+    set_github_release(
+      repository_name: "danielcano75/Networking",
+      api_token: ENV["GITHUB_TOKEN"],
+      name: "Networking v#{version}",
+      tag_name: "v#{version}",
+      description: "## Networking v#{version}\n\nPrecompiled XCFramework for iOS 16+.",
+      upload_assets: [zip_path]
+    )
+
+    # ── 7. Generate podspec and push to master ───────────────────────────────
+    UI.message "Generating podspec for #{version}..."
+    sh "git fetch origin"
+    sh "git checkout master"
+    sh "git pull origin master"
+
+    File.write("Networking.podspec", <<~PODSPEC)
+      Pod::Spec.new do |spec|
+        spec.name             = "Networking"
+        spec.version          = "#{version}"
+        spec.summary          = "Generic Networking framework for iOS"
+        spec.homepage         = "https://github.com/danielcano75/Networking"
+        spec.license          = { :type => "MIT" }
+        spec.author           = { "danielcano75" => "daniel.cano.arbelaez@gmail.com" }
+        spec.platform         = :ios, "16.0"
+        spec.swift_versions   = "5.0"
+        spec.source           = {
+          :http => "https://github.com/danielcano75/Networking/releases/download/v#{version}/Networking.xcframework.zip"
+        }
+        spec.vendored_frameworks = "Networking.xcframework"
+      end
+    PODSPEC
+
+    sh "git add Networking.podspec"
+    sh "git commit -m 'chore: generate podspec #{version} [skip ci]'"
+    sh "git push origin master"
+
+    UI.success "Released Networking v#{version} successfully!"
+  end
+
 end
