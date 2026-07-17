@@ -121,12 +121,10 @@ platform :ios do
     UI.message "Publishing podspec to Specs repo..."
     token = ENV["GITHUB_API_TOKEN"]
     specs_url = "https://x-access-token:#{token}@github.com/danielcano75/Specs.git"
-    sh "pod repo add danielcano75-specs #{specs_url} 2>/dev/null || pod repo update danielcano75-specs"
-    pod_push(
-      path: podspec_path,
-      repo: "danielcano75-specs",
-      allow_warnings: true
-    )
+    Bundler.with_unbundled_env do
+      sh "pod repo add danielcano75-specs #{specs_url} 2>/dev/null || pod repo update danielcano75-specs"
+      sh "pod repo push danielcano75-specs #{podspec_path} --allow-warnings"
+    end
 
     UI.success "Released Networking v#{version} successfully!"
   end
