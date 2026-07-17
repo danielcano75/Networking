@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Run all unit tests"
+  lane :test do
+    run_tests(
+      project: "Networking.xcodeproj",
+      scheme: "Networking",
+      testplan: "NetworkingTests",
+      clean: true,
+      code_coverage: true,
+      output_directory: "fastlane/test_output",
+      output_types: "html,junit",
+      result_bundle: true,
+      devices: ["iPhone 16 Simulator"]
+    )
+  end
+end
