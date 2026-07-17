@@ -7,14 +7,14 @@ platform :ios do
   lane :test do
     run_tests(
       project: "Networking.xcodeproj",
-      scheme: "Networking",
+      scheme: "NetworkingTests",
       testplan: "NetworkingTests",
       clean: true,
       code_coverage: true,
       output_directory: "fastlane/test_output",
       output_types: "html,junit",
       result_bundle: true,
-      devices: ["iPhone 16 Simulator"]
+      xcodebuild_formatter: ""
     )
   end
 end
