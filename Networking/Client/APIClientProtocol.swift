@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol APIClientProtocol {
+public protocol APIClientProtocol {
     func execute<T: Decodable>(_ endpoint: Endpoint, as type: T.Type) async throws -> NetworkResponse<T>
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 public enum NetworkFactory {
-    static func create(with configuration: NetworkConfiguration) -> APIClientProtocol {
+    public static func create(with configuration: NetworkConfiguration) -> APIClientProtocol {
         APIClient(configuration: configuration)
     }
 }
