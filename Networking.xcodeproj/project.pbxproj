@@ -23,6 +23,7 @@
 /* Begin PBXFileReference section */
 		297FEDED300A7EB700E14C26 /* Networking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Networking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		297FEDF6300A7EB800E14C26 /* NetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C2447A2300A997D00EB8D76 /* NetworkingTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = NetworkingTests.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -60,6 +61,7 @@
 		297FEDE3300A7EB700E14C26 = {
 			isa = PBXGroup;
 			children = (
+				5C2447A2300A997D00EB8D76 /* NetworkingTests.xctestplan */,
 				297FEDEF300A7EB700E14C26 /* Networking */,
 				297FEDFA300A7EB800E14C26 /* NetworkingTests */,
 				297FEDEE300A7EB700E14C26 /* Products */,

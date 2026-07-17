@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "179EE2F6-9A34-49CC-9978-F4E1552094AA",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Networking.xcodeproj",
+        "identifier" : "297FEDF5300A7EB800E14C26",
+        "name" : "NetworkingTests"
+      }
+    }
+  ],
+  "version" : 1
+}
